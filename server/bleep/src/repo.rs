@@ -59,9 +59,16 @@ impl RepoRef {
                     }
                 }
 
+                let mut repo_name = name.as_ref().to_owned();
+                if repo_name.starts_with(r"\\?\") {
+                    repo_name = repo_name[4..].to_owned();
+                }
+                
+                println!("[zhaowei] ref name is {}", repo_name);
+
                 Ok(RepoRef {
                     backend,
-                    name: name.as_ref().to_owned(),
+                    name: repo_name,
                 })
             }
         }

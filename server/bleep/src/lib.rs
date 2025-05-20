@@ -25,9 +25,10 @@ use git_version as _;
 use console_subscriber as _;
 
 use remotes::github;
-use secrecy::ExposeSecret;
+use secrecy::{ExposeSecret, SecretString};
 use state::PersistedState;
-use std::fs::canonicalize;
+use tokio::fs;
+use std::{fs::canonicalize, path::PathBuf};
 use user::UserProfile;
 
 use crate::{
@@ -131,10 +132,18 @@ impl Application {
 
         // Databases & indexes
         let sql = Arc::new(db::initialize(&config).await?);
+        println!("[zhaowei] qdrant_url is {}", config.qdrant_url);
+        let model_dir = PathBuf::from("apps\\desktop\\src-tauri\\model");
+        let absolute_path = fs::canonicalize(model_dir.clone()).await?;
+        println!("[zhaowei] model url is {:?}", absolute_path);
         let semantic =
-            Semantic::initialize(&config.model_dir, &config.qdrant_url, Arc::clone(&config))
+            Semantic::initialize(&model_dir, &config.qdrant_url, Arc::clone(&config))
                 .await
                 .context("qdrant initialization failed")?;
+        // let semantic =
+        //     Semantic::initialize(&config.model_dir, &config.qdrant_url, Arc::clone(&config))
+        //         .await
+        //         .context("qdrant initialization failed")?;
 
         // Wipe existing dbs & caches if the schema has changed
         let mut was_index_reset = false;
@@ -199,7 +208,8 @@ impl Application {
         Self::install_logging(&self.config);
 
         self.credentials.set_github(github::Auth::new(
-            self.config.github_access_token.clone().unwrap(),
+            // self.config.github_access_token.clone().unwrap(),
+            SecretString::new("xxx".to_string()),
         ));
         if let Err(err) = self.credentials.store() {
             error!(?err, "failed to save credentials to disk");
@@ -241,7 +251,8 @@ impl Application {
     }
 
     pub async fn username(&self) -> Option<String> {
-        self.credentials.github().unwrap().username().await.ok()
+        Some("username".to_string())
+        // self.credentials.github().unwrap().username().await.ok()
     }
 
     pub(crate) async fn user(&self) -> User {

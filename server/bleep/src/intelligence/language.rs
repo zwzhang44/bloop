@@ -1,11 +1,9 @@
 mod c;
 mod c_sharp;
-mod cobol;
 mod cpp;
 mod go;
 mod java;
 mod javascript;
-mod php;
 mod python;
 mod r;
 mod ruby;
@@ -32,8 +30,6 @@ pub static ALL_LANGUAGES: &[&TSLanguageConfig] = &[
     &cpp::CPP,
     &ruby::RUBY,
     &r::R,
-    &php::PHP,
-    &cobol::COBOL,
 ];
 
 /// A generic language wrapper type.
